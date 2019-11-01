@@ -1,0 +1,11 @@
+Sub dele10()
+Sheets("import").Select
+a = ActiveSheet.Cells.SpecialCells(xlCellTypeLastCell).Row
+For i = 1 To a
+    If Left(Cells(i, "TC"), 2) = "10" Then
+        Range("SV" & i).Select
+        ActiveCell.FormulaR1C1 = ""
+    End If
+Next
+
+End Sub

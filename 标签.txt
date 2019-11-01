@@ -1,0 +1,50 @@
+Sub 标签()
+'运行前提示备份
+
+'1为模板
+Workbooks(1).Activate
+respons = MsgBox("提示：一键操作运行后无法撤消，是否备份当前文档？", vbYesNo)
+If respons = vbYes Then
+    myFolder = ThisWorkbook.Path & "\1标签备份"
+    'if len(dir(myFolder,vbDirectory))
+    MkDir myFolder
+    ChDir "D:\"
+    ActiveWorkbook.SaveAs Filename:=ThisWorkbook.Path & "\1标签备份\标签备份.xlsx", FileFormat:= _
+    xlOpenXMLWorkbook, CreateBackup:=False
+    MsgBox "成功备份在工作薄所在路径处！"
+Else
+    MsgBox "请备份后在执行操作！"
+    End
+End If
+
+'模板中获取可选择信息，如总成、地址等
+
+
+'获取A列行数用于sheet命名
+
+'2为包含信息的表
+Workbooks(2).Activate
+nameNum = ActiveSheet.Range("A" & Rows.Count).End(xlUp).Row
+
+'sheet创建并重命名
+Workbooks(1).Activate
+For i = 1 To nameNum
+    Sheets.Add after:=Sheets(Sheets.Count)
+    ActiveSheet.Name = "FL" & "_" & Workbooks(2).Sheets(1).Cells(i, 1)
+Next
+
+'标签复制到每个sheet
+For i = 2 To nameNum
+    Sheets(1).Cells.Copy
+    Sheets(i).Select
+    ActiveSheet.Paste
+Next
+
+'标签内容填写
+    
+
+End Sub
+
+
+
+

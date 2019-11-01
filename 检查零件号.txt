@@ -1,0 +1,27 @@
+'相同值单元格标记黄色
+Sub check()
+Sheets(6).Select
+For i = 4 To 297
+    For j = 4 To 357
+        If Range("A" & i) = Range("D" & j) Then
+            Range("D" & j).Select
+            With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    Range("A" & i).Select
+            With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    End If
+    Next
+Next
+            
+End Sub

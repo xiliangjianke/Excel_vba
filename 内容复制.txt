@@ -1,0 +1,40 @@
+Sub copy()
+Dim i, j, a As Integer
+'统计sheet数量
+Workbooks(2).Activate
+a = Worksheets.Count
+
+'总表中行数递增
+j = 2
+
+'数据录入
+For i = 1 To a
+'供应商名称
+    Workbooks(1).Sheets(1).Range("A" & j) = Workbooks(2).Sheets(i).Range("B3")
+'供应商地址
+    Workbooks(1).Sheets(1).Range("B" & j) = Workbooks(2).Sheets(i).Range("B4")
+'项目名称
+    Workbooks(1).Sheets(1).Range("C" & j) = Workbooks(2).Sheets(i).Range("D3")
+'相关产品
+    Workbooks(1).Sheets(1).Range("D" & j) = Workbooks(2).Sheets(i).Range("D4")
+'关键工艺
+    Workbooks(1).Sheets(1).Range("E" & j) = Workbooks(2).Sheets(i).Range("D5")
+'关键技术能力
+    Workbooks(1).Sheets(1).Range("F" & j) = Workbooks(2).Sheets(i).Range("D7")
+'其他技术能力
+    Workbooks(1).Sheets(1).Range("G" & j) = Workbooks(2).Sheets(i).Range("D8")
+'递交物质量
+    Workbooks(1).Sheets(1).Range("H" & j) = Workbooks(2).Sheets(i).Range("D9")
+'人员稳定性情况
+    Workbooks(1).Sheets(1).Range("I" & j) = Workbooks(2).Sheets(i).Range("D10")
+'解决问题的响应速度
+    Workbooks(1).Sheets(1).Range("J" & j) = Workbooks(2).Sheets(i).Range("D11")
+'样品递交的及时性
+    Workbooks(1).Sheets(1).Range("K" & j) = Workbooks(2).Sheets(i).Range("D12")
+'其他即时性
+    Workbooks(1).Sheets(1).Range("L" & j) = Workbooks(2).Sheets(i).Range("D13")
+'总分
+    Workbooks(1).Sheets(1).Range("M" & j) = Workbooks(2).Sheets(i).Range("D15")
+
+Next
+End Sub

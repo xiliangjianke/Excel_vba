@@ -1,0 +1,44 @@
+'将多个sheet中的零件号和QAD好复制到一张表内，新建sheet名为copy
+'需要修改总零件号行数，零件号、QAD号所在列数
+
+Sub dp102()
+'工作表循环
+k = 1
+For i = 2 To 8
+    Sheets(i).Select
+'总零件号行数，根据零件号所在列数L来确定
+    row_num = ActiveSheet.Range("L" & Rows.Count).End(xlUp).Row
+
+'不同行数据循环，数据从第8行开始
+    For j = 8 To row_num
+
+'复制零件号，位于 L 列 j 行
+        Sheets(i).Select
+        Range("L" & j).Select
+        Selection.Copy
+
+'复制到名为copy的sheet，A列为零件号
+        Sheets("copy").Select
+        Range("A" & k).Select
+
+'复制只保存值
+        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+                   :=False, Transpose:=False
+
+'复制QAD，位于 J 列 j 行
+        Sheets(i).Select
+        Range("J" & j).Select
+        Selection.Copy
+
+'复制到名为copy的sheet，B列为QAD号
+        Sheets("copy").Select
+        Range("B" & k).Select
+        Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+                   :=False, Transpose:=False
+        k = k + 1
+    Next
+    MsgBox Sheets(i).Name & "复制完毕！"
+Next
+MsgBox "全部复制完毕"
+End Sub
+

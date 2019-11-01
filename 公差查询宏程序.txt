@@ -1,0 +1,131 @@
+'模塑间尺寸公差表查询共需四个参数，材料、公差等级、匹配方式、基本尺寸
+'定义两个函数来查询，DIN_Series(Material)包含材料参数同时确定公差等级，DIN_Tolerance()包含匹配方式和基本尺寸并接受DIN_Series(Material)传来的公差等级
+'函数整体用法 DIN_Tolerance(DIN_Series(Material), strCode, dblDimension)
+'DIN_Series(Material)确定公差等级，作为参数传递给DIN_Tolerance()
+'先定义表格中行数据，如DIN_TBL2_MT2_A，再定义列数据，将数值范围的极值放入两个数组MinDimension与MaxDimension，列数与列号相同
+'判定(MinDimension(intI) <= dblDimension) And (dblDimension < MaxDimension(intI))，若符合则将极值数组列号赋给intCol，由此确定列索引
+'定义二维数组，将行数据放入：DIN_TBL2(0, intI) = DIN_TBL2_MT2_A(intI)，此二位数组的列序号与极值数组相同，故列可由intCol索引
+'采用字符相加来包含匹配方式AB，并确定行索引
+'根据strSeriesCode的值确定二维数组“Dim DIN_TBL2”的行数 ，如strSeries由DIN_Series(Material)确定公差等级为MT2，匹配方式为A，则strSeries=MT2+A = MT2A
+
+'2019.5.17,部分材料名称有误，尺寸也需要跟表格二次核对
+
+Function DIN_Series(Material) As String
+' 此函数根据材料确定公差等级
+
+   Select Case Material
+      Case "ABS", "EP", "PA(30%玻璃纤维填充)", "PTB(30%玻璃纤维填充)", "PC", "PDAP", "PEEK", "PESU", "PET(30%玻璃纤维填充)", "PF(无机填料填充)", "PMMA", "PP(30%玻璃纤维填充)", "PPE", "PPS", "PS", "PSU", "PVC-U", "SAN", "UF(无机填料填充)", "UP(30%玻璃纤维填充)"
+
+        
+               DIN_Series = "MT2"
+           
+         
+      Case "CA", "PA(无填料填充)", "PET(无填料填充)", "PF(有机填料填充)", "POM(<=150mm)", "UF(有机填料填充)", "PET(无填料填充)"
+
+        
+               DIN_Series = "MT3"
+            
+        
+      Case "PE-HD", "POM(>150mm)", "PP(无填料填充)", "PUR-P"
+
+        
+               DIN_Series = "MT4"
+           
+         
+      Case "PE-LD", "PVC-P"
+
+
+        
+               DIN_Series = "MT5"
+      Case Else
+         DIN_Series = "No Match Mat'l"
+   End Select
+
+End Function
+
+Function DIN_Tolerance(strSeries, strCode, dblDimension)
+' Table-2 来源于注塑件国家标准-DIN_Tolerance（公差等级，匹配方式，基础尺寸）
+    
+    Dim intRow, intCol, intX, intI, intJ As Integer
+    Dim strSeriesCode
+
+'定义一个40*40的二维数组，行为公差等级+匹配方式，列为基础尺寸范围
+   
+    Dim DIN_TBL2(40, 40)
+    
+'MT2为公差等级，A/B位匹配方式，以下数据放在 以（公差等级+匹配方式）整理的一维数组中  
+  
+    DIN_TBL2_MT2_A = Array(0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.26, 0.3, 0.34, 0.38, 0.42, 0.46, 0.5, 0.54, 0.6, 0.66, 0.72, 0.76, 0.84, 0.92, 1, 1.1, 1.2, 1.4, 1.7, 2.1)
+    DIN_TBL2_MT2_B = Array(0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.7, 0.7, 0.76, 0.82, 0.86, 0.94, 1.02, 1.1, 1.2, 1.3, 1.5, 1.8, 2.2)
+    DIN_DBL2_MT3_A = Array(0.12, 0.14, 0.15, 0.18, 0.2, 0.22, 0.26, 0.3, 0.34, 0.4, 0.46, 0.52, 0.58, 0.64, 0.7, 0.78, 0.84, 0.92, 1, 1.1, 1.2, 1.3, 1.44, 1.6, 1.74, 2, 2.4, 3)
+    DIN_TBL2_MT3_B = Array(0.32, 0.34, 0.36, 0.38, 0.4, 0.42, 0.46, 0.5, 0.54, 0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.98, 1.06, 1.12, 1.2, 1.3, 1.4, 1.5, 1.64, 1.8, 1.94, 2.2, 2.6, 3.2)
+    DIN_TBL2_MT4_A = Array(0.16, 0.18, 0.2, 0.24, 0.28, 0.32, 0.36, 0.42, 0.48, 0.56, 0.64, 0.72, 0.82, 0.92, 1.02, 1.12, 1.24, 1.36, 1.48, 1.62, 1.8, 2, 2.2, 2.4, 2.6, 3.1, 3.8, 4.6)
+    DIN_TBL2_MT4_B = Array(0.36, 0.38, 0.4, 0.44, 0.48, 0.52, 0.56, 0.62, 0.68, 0.76, 0.84, 0.92, 1.02, 1.12, 1.22, 1.32, 1.44, 1.56, 1.68, 1.82, 2, 2.2, 2.4, 2.6, 2.8, 3.3, 4, 4.8)
+    DIN_TBL2_MT5_A = Array(0.2, 0.24, 0.28, 0.32, 0.38, 0.44, 0.5, 0.56, 0.64, 0.74, 0.86, 1, 1.14, 1.28, 1.44, 1.6, 1.76, 1.92, 2.1, 2.3, 2.5, 2.8, 3.1, 3.5, 3.9, 4.5, 5.6, 6.9)
+    DIN_TBL2_MT5_B = Array(0.4, 0.44, 0.48, 0.52, 0.58, 0.64, 0.7, 0.76, 0.84, 0.94, 1.06, 1.2, 1.34, 1.48, 1.64, 1.8, 1.96, 2.12, 2.3, 2.5, 2.7, 3, 3.3, 3.7, 4.1, 4.7, 5.8, 7.1)
+    
+    MinDimension = Array(0, 3, 6, 10, 14, 18, 24, 30, 40, 50, 65, 80, 100, 120, 140, 160, 180, 200, 225, 250, 280, 315, 355, 400, 450, 500, 630, 800)
+    MaxDimension = Array(3, 6, 10, 14, 18, 24, 30, 40, 50, 65, 80, 100, 120, 140, 160, 180, 200, 225, 250, 280, 315, 355, 400, 450, 500, 630, 800, 1000)
+ 
+'将以上整理出的一维数组的值，放入定义的二维数组“Dim DIN_TBL2”中，行编号为0~7，从DIN_TBL2_MT2_A到 DIN_TBL2_MT5_B，列编号与一维数组相同
+   
+    For intI = 0 To UBound(DIN_TBL2_MT2_A)
+        DIN_TBL2(0, intI) = DIN_TBL2_MT2_A(intI)
+        DIN_TBL2(1, intI) = DIN_TBL2_MT2_B(intI)
+        DIN_TBL2(2, intI) = DIN_DBL2_MT3_A(intI)
+        DIN_TBL2(3, intI) = DIN_TBL2_MT3_B(intI)
+        DIN_TBL2(4, intI) = DIN_TBL2_MT4_A(intI)
+        DIN_TBL2(5, intI) = DIN_TBL2_MT4_B(intI)
+        DIN_TBL2(6, intI) = DIN_TBL2_MT5_A(intI)
+        DIN_TBL2(7, intI) = DIN_TBL2_MT5_B(intI)
+        
+    Next intI
+    
+'赋予 strSeriesCode 参数值 ：公差等级 + 匹配方式      
+        
+    strSeriesCode = strSeries + strCode
+
+'根据strSeriesCode的值确定二维数组“Dim DIN_TBL2”的行数 ，如strSeries由DIN_Series(Material)确定公差等级为MT2，匹配方式为A，则strSeries=MT2+A = MT2A
+  
+    Select Case strSeriesCode
+        Case "MT2A"
+            intRow = 0
+        Case "MT2B"
+            intRow = 1
+        Case "MT3A"
+            intRow = 2
+        Case "MT3B"
+            intRow = 3
+        Case "MT4A"
+            intRow = 4
+        Case "MT4B"
+            intRow = 5
+        Case "MT5A"
+            intRow = 6
+        Case "MT5B"
+            intRow = 7
+        
+        Case Else
+            intRow = -99
+    End Select
+    
+'根据输入的“dblDimension”确定二维数组的列编号，UBound(MinDimension)为获得数组MinDimension最后一位的序号   
+    
+    For intI = 0 To UBound(MinDimension)
+        If (MinDimension(intI) <= dblDimension) And (dblDimension < MaxDimension(intI)) Then
+            intCol = intI
+        Else
+            incCol = -99
+        End If
+    Next intI
+
+'若选择的材料不在材料库内，或输入的尺寸不在尺寸范围内，公差显示为0，否则公差为二维数组DIN_TBL2(intRow, intCol)的值
+
+    If intRow = -99 Or intCol = -99 Then
+        DIN_Tolerance = 0
+    Else
+        DIN_Tolerance = DIN_TBL2(intRow, intCol)
+    End If
+    
+End Function
+

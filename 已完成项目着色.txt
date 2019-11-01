@@ -1,0 +1,19 @@
+sub color ()
+
+a = activesheet.range("B"&rows.count).end(xlup).row
+
+for i = 1 to a
+	if range("P"&i) = "Complete" then
+		range("B"&i).select
+		
+		With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .ThemeColor = xlThemeColorAccent1
+        .TintAndShade = 0.799981688894314
+        .PatternTintAndShade = 0
+    End With
+	end if
+next
+
+end sub

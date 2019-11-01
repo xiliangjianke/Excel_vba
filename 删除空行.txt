@@ -1,0 +1,21 @@
+'此宏功能为批量删除指定sheet中的空白行
+
+
+Sub dele_null_row()
+
+'将表名替换为需要删除空行的sheet名，""需保留
+Sheets("表名").Select
+
+'统计数据行数，A为零件号所在列，无需修改
+row_tnum = ActiveSheet.Range("A" & Rows.Count).End(xlUp).Row
+For i = 10 To row_tnum
+    If Range("A" & i) = "" Then
+       row_num = Range("TE" & i).Row
+       Rows(row_num & ":" & row_num).Select
+       Selection.Delete Shift:=xlUp
+    End If
+Next
+
+MsgBox "删除完毕！"
+End Sub
+

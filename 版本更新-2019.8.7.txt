@@ -1,0 +1,221 @@
+Private Sub Workbook_Open()
+Dim newPkr As Workbook
+Dim newB(), oldB()
+Dim strFolder As String
+
+'新版本pkr所在文件夹,此处文件夹路径应更改为共享文件夹路径，注意最后一个文件夹后有"\"
+strFolder = "C:\Users\ubiak002\Desktop\pkr宏\共享文件夹\"
+
+
+'判断打开的pkr文件是否在共享文件夹中，如果在则不执行后续程序
+fn = ThisWorkbook.Path & "\"
+If strFolder <> fn Then
+
+'----------------------此代码块用于检索共享文件夹内对应的新pkr文件----------------------
+
+'选取对应新版本pkr并打开
+fName = Dir(strFolder & "*.*")
+Do While fName <> ""
+    '获取旧pkr文件关键字符串
+    nameStr01 = ThisWorkbook.Name
+    keyStr = VBA.Split(nameStr01, "_")
+    If InStr(fName, keyStr(3)) > 0 Then
+        '打开文件
+        Set newPkr = Workbooks.Open(Filename:=strFolder & fName)
+        nameStr02 = ActiveWorkbook.Name
+    End If
+    fName = Dir
+Loop
+
+
+'判断版本号
+
+
+If Workbooks(nameStr01).Sheets("PKR Form").Range("G3") <> Workbooks(nameStr02).Sheets("PKR Form").Range("G3") Then
+'------------------------------此代码块用于获取新旧pkr文件数据起始行---------------------------
+'获取数据起始行
+'旧pkr文件数据起始行
+Workbooks(nameStr01).Activate
+oldRow = Sheet1.UsedRange.SpecialCells(xlCellTypeLastCell).Row
+'MsgBox (a)
+For i = 1 To oldRow
+    If Sheets(1).Cells(i, 2) = "Knowledge Documents" Then
+        oldStar = i + 2
+        'MsgBox (oldStar)
+    End If
+    If Sheets(1).Cells(i, 5) = "EQM Risk Score" Then
+    '插入模块运行时应当-6
+        oldEnd = i - 6
+        'MsgBox (oldEnd)
+    End If
+Next
+
+'新pkr文件数据起始行
+Workbooks(nameStr02).Activate
+newRow = Sheet1.UsedRange.SpecialCells(xlCellTypeLastCell).Row
+'MsgBox (a)
+For i = 1 To newRow
+    If Sheets(1).Cells(i, 2) = "Knowledge Documents" Then
+        newStar = i + 2
+        'MsgBox (newStar)
+    End If
+     If Sheets(1).Cells(i, 5) = "EQM Risk Score" Then
+     '放在open下应当少减一个数字，原因未知，可能是文件本身或模块有什么默认设置，如果运行后结果有误需继续调试-------------------------------------------
+        newEnd = i - 6
+        'MsgBox (newEnd)
+    End If
+Next
+
+'核心逻辑
+'1.将新、旧pkr文件的B列(或H列)数据放入不同数组newB()与oldB()
+'2.对比新、旧pkr文件的B列和H列数据，若两列数据相等，旧Y列=新Y列；若不等，将行号对应数组索引的值赋予空值“ ”
+'3.此时数组中不为空值的数据有两种情况，在旧pkr中的oldB()内为新pkr已删除的数据；在新pkr中的newB()内为新pkr新增的数据
+'4.若为删除数据，旧Y列=被替代；若为新增数据，旧Y列=新Y列，在A列提示新增
+
+
+'-------------------------------此代码块用于赋值新旧pkr数据数组---------------------
+'旧pkr数组oldB()赋值
+Workbooks(nameStr01).Activate
+Worksheets("PKR Form").Activate
+ReDim oldB(oldStar To oldEnd)
+For i = oldStar To oldEnd
+    oldB(i) = Cells(i, 2)
+    
+    'MsgBox (oldB(i))
+Next
+'新pkr数组newB()赋值
+Workbooks(nameStr02).Activate
+Worksheets("PKR Form").Activate
+'MsgBox (Range("B3"))
+ReDim newB(newStar To newEnd)
+For i = newStar To newEnd
+    newB(i) = Cells(i, 2)
+    
+    'MsgBox (newB(i))
+Next
+
+'---------------------------------------此代码块用于数据比较，以及根据规则进行单元格赋值
+'判断新、旧pkr B\H 列数据
+For i = oldStar To oldEnd
+    For j = newStar To newEnd
+        If Workbooks(nameStr01).Sheets("PKR Form").Range("B" & i) = Workbooks(nameStr02).Sheets("PKR Form").Range("B" & j) _
+        And Workbooks(nameStr01).Sheets("PKR Form").Range("H" & i) = Workbooks(nameStr02).Sheets("PKR Form").Range("H" & j) Then
+            '相同赋值
+            Workbooks(nameStr01).Activate
+            'Sheets(1).Range("Y" & i).Select
+            'ActiveCell.FormulaR1C1 = "相同"
+            Workbooks(nameStr01).Sheets("PKR Form").Range("Y" & i) = Workbooks(nameStr02).Sheets("PKR Form").Range("Y" & j)
+            '对应数组索引号的数据赋予空值：“ ”
+            oldB(i) = " "
+            newB(j) = " "
+             '若H/B相同，则判断版本号是否相同
+            If Workbooks(nameStr01).Sheets("PKR Form").Range("X" & i) <> Workbooks(nameStr02).Sheets("PKR Form").Range("X" & j) Then
+        '变为蓝色
+        Workbooks(nameStr01).Activate
+        Sheets(1).Range("Y" & i).Activate
+        With Selection.Interior
+                .Pattern = xlSolid
+             .PatternColorIndex = xlAutomatic
+                .Color = 15773696
+                .TintAndShade = 0
+                .PatternTintAndShade = 0
+            End With
+        '赋值
+        Workbooks(nameStr01).Sheets("PKR Form").Range("Y" & i) = Workbooks(nameStr02).Sheets("PKR Form").Range("X" & j)
+         '新版本号
+                Workbooks(nameStr01).Sheets("PKR Form").Range("AD" & i) = "新pkr版本号：" & Workbooks(nameStr02).Sheets("PKR Form").Range("G3")
+    End If
+        End If
+    Next
+Next
+
+'新增数据操作
+j = 1
+For i = newStar To newEnd
+    If newB(i) <> " " Then
+    'MsgBox (newB(i))
+
+    '新增行
+    ThisWorkbook.Sheets("PKR Form").Rows(oldEnd + 5 & ":" & oldEnd + 5).Select
+    Selection.Insert Shift:=xlDown, CopyOrigin:=xlFormatFromLeftOrAbove
+    
+    '在thisworkbook模块需采用下面的语法
+Workbooks(nameStr02).Sheets("PKR Form").Rows(i).Copy ThisWorkbook.Sheets("PKR Form").Range("A" & newEnd + j)
+    'Workbooks(nameStr02).Activate
+    'Sheets(1).Activate
+        'Rows(i & ":" & i).Select
+        'Selection.Copy
+
+    'Workbooks(nameStr01).Activate
+     'Sheets(1).Activate
+        'Rows(newEnd + j & ":" & newEnd + j).Activate
+        'Selection.Insert Shift:=xlDown
+        Workbooks(nameStr01).Activate
+        Sheets(1).Range("AA" & newEnd + j).Activate
+         '新版本号
+        Workbooks(nameStr01).Sheets("PKR Form").Range("AD" & newEnd + j) = "新pkr版本号：" & Workbooks(nameStr02).Sheets("PKR Form").Range("G3")
+        
+        ActiveCell.FormulaR1C1 = "新增,新版本中所在行：" & i
+        Range("AA" & newEnd + j & ":AC" & newEnd + j).Activate
+        '新增单元格标记为绿色
+         With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 5287936
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+        'Range("B" & newEnd + j).Activate
+        'ActiveCell.FormulaR1C1 = "提示"
+        j = j + 1
+    End If
+Next
+
+'旧删数据操作
+For i = oldStar To oldEnd
+    If oldB(i) <> " " Then
+     'MsgBox (oldB(i))
+        Workbooks(nameStr01).Activate
+        Sheets(1).Range("Y" & i).Activate
+        '新版本号
+        Workbooks(nameStr01).Sheets("PKR Form").Range("AD" & i) = "新pkr版本号：" & Workbooks(nameStr02).Sheets("PKR Form").Range("G3")
+        ActiveCell.FormulaR1C1 = "被替代"
+        '已删单元格标记为黄色
+         With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    End If
+Next
+'关闭新版pkr
+Workbooks(nameStr02).Activate
+
+'关闭剪贴板提示，需放在关闭命令前
+Application.CutCopyMode = False
+
+'关闭新版本pkr文件时不保存更改
+ActiveWorkbook.Close SaveChanges:=False
+MsgBox ("pkr已出新版本！")
+    
+Else
+MsgBox ("当前pkr为最新版本")
+End If
+
+End If
+
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+

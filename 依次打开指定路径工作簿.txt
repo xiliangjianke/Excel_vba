@@ -1,0 +1,31 @@
+Sub 打开()
+MsgBox "kaishi"
+Dim myPath$, myFile$, AK As Workbook
+
+'Application.ScreenUpdating = False '冻结屏幕，以防屏幕抖动
+
+myPath = "C:\Users\ubiak001\Desktop\TA\测试\" '在这里输入你的路径，即你存放工作簿的文件夹
+MsgBox myPath
+myFile = Dir(myPath & "*.xlsx") '依次找寻指定路径中的*.xlsx文件
+MsgBox myFile
+Do While myFile <> "" '当指定路径中有文件时进行循环
+
+If myFile <> ThisWorkbook.Name Then
+
+Set AK = Workbooks.Open(myPath & myFile) '打开符合要求的文件
+
+End If
+
+'在这里插入你要处理的代码
+MsgBox Workbooks(1).Name
+MsgBox Workbooks(2).Name
+
+AK.Close '这里可以选择参数是否保存，你也可以删除这行代码，手动关闭文件
+
+myFile = Dir '找寻下一个*.xlsx文件
+
+Loop
+
+'Application.ScreenUpdating = True '解除冻结屏幕,此类语句一般成对使用
+MsgBox "结束！"
+End Sub

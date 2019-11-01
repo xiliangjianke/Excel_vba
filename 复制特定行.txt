@@ -1,0 +1,18 @@
+Sub select_row()
+Dim a,j As Integer
+j = 76
+a = ActiveSheet.Range("O" & Rows.Count).End(xlUp).Row
+For i = 1 To a
+    If Range("O" & i) = "移交合肥公司" Then
+       Range("O" & i).Select
+       Rows(ActiveCell.Row).Select
+       Application.CutCopyMode = False
+       Selection.Copy
+       Range("A" & j).Select
+       ActiveSheet.Paste
+        j = j + 1
+    End If
+   
+Next
+        
+End Sub

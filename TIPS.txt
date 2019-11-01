@@ -1,0 +1,305 @@
+vba document
+https://www.wallstreetmojo.com/vba-split-function/
+
+
+数组相关
+1.获取数组元素个数
+number = ubound(arr) - lbound(arr) + 1
+
+2.数组去除重复元素
+ Dim xm() As String, Arr() As String, Temp() As String '声明变量
+    Dim s%, r% '声明单值变量
+    On Error Resume Next '启动一个错误处理程序
+    xm = Split(Range("a1"), ",") '用A1单元格的数据创建数组
+    r = 0 '初值
+    s = UBound(xm) '最大下标
+    For i = 0 To s '循环，数组中取不重复值
+        Temp = Filter(Arr, xm(i)) '搜索数组
+        If UBound(Temp) = -1 Then '如果未找到（数组的上限＝－1，说明该数组为空，即没有元素）
+            r = r + 1 '序号，自增1
+            ReDim Preserve Arr(1 To r) '定义动态数组大小
+            Arr(r) = xm(i) '把姓名复制到数组Arr()中。
+        End If
+    Next
+    Range("a2").Resize(1, r) = Arr '填充到工作表的一行之中
+    'Range("a2") = Join(Arr, ",") '填充到工作表的A2之中
+End Sub
+
+
+1.将一列数据放入数组
+Sub aa()
+Dim a(),b(),d(),e()
+a = [a1:a427].Value
+d = [d1:d285].Value
+e = [e1:e285].Value
+for i = 1 to 427
+if a(i,1) > 0 and 
+End Sub
+
+单元格行列赋值给数组
+Sub a()
+Dim tmp() As Variant
+Dim arr1, arr2
+tmp = Range("A1:D8")
+'取一行成一维，以第三行为例
+arr1 = Application.Index(tmp, 3, 0)
+'取一列成一维，以第四列为例
+arr2 = Application.Index(Application.Transpose(tmp), 4, 0)
+End Sub
+
+数组给单元格赋值
+Sheet2.Range("a1:A100") = Application.Index(arr, , 3)获取一列
+Sheet2.Range("b1:h1") = Application.Index(arr, 5)获取一行
+
+
+2.判断某一数据是否在某一列
+=if(countif(D1:D285,A1)
+
+3.判断某一数据在某一列并输出行数
+Set findcell = Columns("d").find(A2, lookat:=xlPart)
+If Not findcell Is Nothing Then
+MsgBox findcell.Row
+Else
+MsgBox "无符合条件"
+End If
+
+
+4.设置颜色
+ Range("O32").Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+
+5.单元格循环参数
+cells(i,1)
+range("A"&i)
+
+6.单元格赋值
+Range("B287").Select
+    ActiveCell.FormulaR1C1 = ""
+
+7.删除行
+Rows("5:5").Select
+    Selection.delete Shift:=xlUp
+    Rows("10:13").Select
+    Selection.delete Shift:=xlUp
+
+8.表格行数和列数
+a = sheet1.usedrange.specialcells(xlcelltypelastcell).row
+b = sheet1.range("dz1").end(xltoleft).column
+
+
+9.选中某表中的单元格赋值
+Sheets("Sheet2").Select
+    Range("D3").Select
+    ActiveCell.FormulaR1C1 = "3"
+
+
+10.数组向单元格赋值
+Range("B2").Resize(UBound(arr), 2) = Application.Transpose(arr)
+
+11.提取单元格内指定位数
+Mid(cells(i,"E"),2,5) '结果返回单元格Ei内从左数第2个开始的共5个字符
+LEFT(cells(i,"E",),2)'结果返回单元格前2为字符
+
+12.获取最后一行有数据的行号
+activesheet.cells.specialcells(xlcelltypelastcell).row 
+
+13.获取指定列最后一行数据行号
+activesheet.range("A"&rows.count).end(xlup).row
+
+14.选取指定sheet
+Sheets("Sheet1").Select
+
+15.弹出判断框
+if msgbox("是否删除10开头的QAD号？",vbyesno,"提示") = vbyes then
+
+16.区域复制
+Sheets("Sheet2").Select
+a = 1
+c = ActiveSheet.Range("A" & Rows.Count).End(xlUp).Row
+Sheets("Sheet2").Select
+    Range("A" & a & ":A" & c).Select
+    Selection.Copy
+    Sheets("Sheet1").Select
+    Range("B1").Select
+    ActiveSheet.Paste
+
+17.删除整行
+  row_num = Range("TE" & i).Row
+       Rows(row_num & ":" & row_num).Select '注意参数引用方式，变量+空格+&+空格+"+:，后同理
+       Selection.Delete Shift:=xlUp
+
+18.选中工作薄
+workbooks(2).activate
+
+19.备份文档
+respons = MsgBox("提示：一键操作运行后无法撤消，是否备份当前文档？", vbYesNo)
+If respons = vbYes Then
+    myFolder = ThisWorkbook.Path & "\1标签备份"
+    'if len(dir(myFolder,vbDirectory))
+    MkDir myFolder
+    ChDir "D:\"
+    ActiveWorkbook.SaveAs Filename:=ThisWorkbook.Path & "\1标签备份\标签备份.xlsx", FileFormat:= _
+    xlOpenXMLWorkbook, CreateBackup:=False
+    MsgBox "成功备份在工作薄所在路径处！"
+Else
+    MsgBox "请备份后在执行操作！"
+    End
+End If
+
+20.关闭屏幕刷新提升速度
+application.screemupdating = false
+结束时在打开
+application.screemupdating = true
+
+21.单元格赋值
+Sheets(2).Select
+ Range("H6").Select
+    ActiveCell.FormulaR1C1 = Workbooks(2).Sheets(1).Cells(3, a)
+
+22.sheet计数，在copy中输出所有sheet名称
+Sub sheet_count()
+Dim ws As Worksheet
+Sheets("copy").Select
+For Each ws In Worksheets
+    Cells(Rows.Count, 1).End(xlUp).Offset(1).Value = ws.Name
+    Next
+    Set ws = Nothing
+    
+End Sub
+
+23.显示所有sheet
+Sub showSht()
+Dim sht As Worksheet
+For Each sht In Worksheets
+sht.Visible = -1
+Next sht
+End Sub
+
+24.产生1~10之间的随机数，fix()取整，rnd()产生0~1之间的随机数
+fix(10*rnd()) + 1
+整数变量 = fix((最大值-最小值+1)*rnd)+最小值
+
+25.检查输入字符,enter键的ASCII码为13
+if keyascii = 13 then
+
+26.选中单元格所在行
+range("A"&i)
+Rows(ActiveCell.Row).Select
+
+27.检查某字符串包含在另一字符串中
+If InStr(Sheets("Sheet2").Range("A" & i), Sheets("Sheet1").Range("A" & i)) = 1 Then
+                      a                                  b
+a为总字符串，b为要检索的字符
+
+=================空单元格变为黄色===========================
+Sub Macro1()
+
+For i = 1 To 5
+If Range("F" & i) = "" Then
+Range("F" & i).Select
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 65535
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+End If
+Next
+End Sub
+============================================================
+
+
+==============创建M*N数组========================
+dim arr(),a&,b&,m&,n&
+redim arr(1 to a, 1 to b)
+for m = 1 to a
+	for n = 1 to b
+		arr(m,n) = sheet1.cells(m,n)
+	next
+next
+
+
+=====VBA实现VLOOKUP=======
+for r = 1 to ubound(arr2) '数组2行数
+for i = 1 to ubound(arr1) '数组1行数
+if arr2(r,1) = arr(i,1) then
+arr2(r,2) = arr(i,2) '将数组1对应的第二列值赋值给数组2第二列
+exit for
+end if
+next
+
+=======问题======
+Sub try()
+Dim i%, r%
+Dim arr1, arr2
+arr1 = Sheets("sheet1").[a1].CurrentRegion
+arr2 = Sheets("sheet1").[f1].CurrentRegion
+r = 1
+For r = 1 To UBound(arr2)
+For i = 1 To UBound(arr1)
+If arr2(r, 1) = arr1(i, 1) Then
+arr2(r, 2) = arr1(i, 2)
+
+End If
+           
+Next r, i
+Sheets("sheet1").[f1].Resize(UBound(arr2), 2) = arr2
+
+End Sub
+
+=====================插入图片自适应单元格大小===================
+Sub 插入图片()
+
+
+Dim filenames As String
+ Dim filefilter1 As String
+
+
+ filefilter1 = ("所有图片文件（*.jpg;*.bmp;*.png;*.gif）,*.jpg;*.bmp;*.png;*.gif")    '所有图片文件后面的括号为中文括号
+filenames = Application.GetOpenFilename(filefilter1, , "请选择一个图片文件", , MultiSelect:=False)
+
+
+ '没有选中文件时，做容错处理
+If filenames = "False" Then
+ Exit Sub
+ End If
+
+
+ '插入图片到指定的单元格
+Sheet1.Pictures.Insert(filenames).Select
+
+
+ '图片自适应单元格大小
+On Error Resume Next
+ Dim picW As Single, picH As Single
+ Dim cellW As Single, cellH As Single
+ Dim rtoW As Single, rtoH As Single
+ cellW = ActiveCell.Width
+ cellH = ActiveCell.Height
+ picW = Selection.ShapeRange.Width
+ picH = Selection.ShapeRange.Height
+ rtoW = cellW / picW * 0.95
+ rtoH = cellH / picH * 0.95
+ If rtoW < rtoH Then
+     Selection.ShapeRange.ScaleWidth rtoW, msoFalse, msoScaleFromTopLeft
+ Else
+     Selection.ShapeRange.ScaleHeight rtoH, msoFalse, msoScaleFromTopLeft
+ End If
+ picW = Selection.ShapeRange.Width
+ picH = Selection.ShapeRange.Height
+ Selection.ShapeRange.IncrementLeft (cellW - picW) / 2
+ Selection.ShapeRange.IncrementTop (cellH - picH) / 2
+
+
+ End Sub 
+
+
+excel vba 调用
+https://www.cnblogs.com/isunlitao/p/6189067.html

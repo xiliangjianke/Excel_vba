@@ -1,0 +1,68 @@
+'新建两张sheet，在第一个表中（名为“Sheet1”）放入调整好的零件号和QAD号（所有数字转化为数字格式）
+'第二个表中（名为“Sheet2”）的第一列复制TC导出的BOM中的延锋零件号（所有数字转化为数字格式）
+'按alt+f11进入开发者模式，单击insert>moudel,将代码复制进去，ctrl+a全部选中，f5运行即可
+'=======================================================
+Sub new_edition()
+Dim arr1, arr2
+'创建sheet3
+Sheets.Add after:=Sheets(Sheets.Count)
+'获取sheet1行号
+Sheets(2).Select
+a = activesheet.range("A"&rows.count).end(xlup).row
+
+'获取shee2行号
+Sheets(3).Select
+b = activesheet.range("A"&rows.count).end(xlup).row
+
+'定义已知数组1，调整好零件号与QAD，删除空行放置于第二个sheet
+ReDim arr1(1 To a, 1 To 2)
+For m = 1 To a
+    For n = 1 To 2
+        arr1(m, n) = Sheet2.Cells(m, n)
+    Next
+Next
+'定义未知数组2,将BOM零件号复制到第三个sheet
+ReDim arr2(1 To b, 1 To 2)
+For j = 1 To b
+    For k = 1 To 2
+        arr2(j, k) = Sheet3.Cells(j, k)
+    Next
+Next
+'遍历数组赋值
+For i = 1 To a
+    For j = 1 To b
+        If arr2(j, 1) = arr1(i, 1) Then
+            arr2(j, 2) = arr1(i, 2)
+        End If
+    Next
+Next
+
+'对应结果放入第四章表，名为“sheet3”
+Sheets(4).Select
+Range("B2").Resize(UBound(arr2, 1), UBound(arr2, 2)) = arr2
+
+'判断是否删除10开头的QAD号
+if msgbox("是否删除紧固件（10开头零件号的零件）的QAD号？",vbyesno,"提示") = vbyes then
+Sheets(4).Select
+For i = 1 To b
+    If Left(Cells(i, "B"), 2) = "10" Then
+        Range("C" & i).Select
+        ActiveCell.FormulaR1C1 = ""
+    End If
+Next
+msgbox "已刪除！"
+else
+msgbox "已保留！"
+end if
+
+'匹配好的QAD号自动复制
+'获取sheet3行号
+a = 3
+c = activesheet.range("C"&rows.count).end(xlup).row
+Sheets(4).Select
+    Range("C" & a & ":C" & c).Select
+    Selection.Copy
+    Sheets("import").Select
+    Range("SV10").Select
+    ActiveSheet.Paste
+End Sub

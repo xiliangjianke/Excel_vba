@@ -1,0 +1,23 @@
+Sub check_same()
+Dim a, i As Integer
+
+Sheets("Sheet1").Select
+
+a = ActiveSheet.Range("A" & Rows.Count).End(xlUp).Row
+
+For i = 1 To a
+    If InStr(Sheets("Sheet2").Range("A" & i), Sheets("Sheet1").Range("A" & i)) = 1 Then
+        Sheets("Sheet2").Select
+        Range("A" & i).Select
+         With Selection.Interior
+                 .Pattern = xlSolid
+                 .PatternColorIndex = xlAutomatic
+                 .Color = 65535
+                 .TintAndShade = 0
+                  .PatternTintAndShade = 0
+         End With
+        Range("B" & i).Select
+            ActiveCell.FormulaR1C1 = "АќКЌдк " & ActiveSheet.Name & " жа"
+    End If
+Next
+End Sub

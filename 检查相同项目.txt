@@ -1,0 +1,23 @@
+sub check_same()
+dim a,i as integer
+
+sheets("工程二部").select
+
+a = activesheet.range("A"&rows.count).end(xlup).row
+
+for i = 3 to a
+	if sheets("工程二部").range("B"&i) = sheets("金桥公司").range("B"&i) then
+		sheets("金桥公司").select
+		range("B"&i).select
+		 With Selection.Interior
+       			 .Pattern = xlSolid
+       			 .PatternColorIndex = xlAutomatic
+       			 .Color = 65535
+       			 .TintAndShade = 0
+      			  .PatternTintAndShade = 0
+   		 End With
+		range("B"&i).select
+			ActiveCell.FormulaR1C1 = "包含在工程二部sheet中"
+	end if
+next
+end sub
