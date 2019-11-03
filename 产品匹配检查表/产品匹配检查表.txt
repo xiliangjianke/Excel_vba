@@ -1,0 +1,225 @@
+Sub 一键操作()
+
+   On Error Resume Next
+   
+'公差公式计算
+   'For i = 3 To 800
+    'Sheets(2).Range("F" & i) = DIN_Tolerance(DIN_Series(Range("C" & i)), Range("D" & i), Range("E" & i))
+   'Next
+'公差值引用
+   For i = 3 To 800
+    Range("G" & i) = Range("F" & i).Value
+   Next
+         
+'工作表创建与重命名
+   uplimit = Sheets(2).Range("K2")
+   excel_name = Sheets(2).Range("K3")
+
+   If (Sheets(2).Range("K2") = "" Or Sheets(2).Range("K3") = "") Then
+    MsgBox "请输入数据总行数和表名称！"
+   End If
+
+  Windows(excel_name).Activate '激活匹配检查表
+
+   For i = 5 To uplimit
+    Sheets("模板").Select
+  
+        Sheets("模板").Copy after:=Sheets(i)
+
+    Sheets(i).name = Sheets(3).Cells(i + 6, "A")
+
+   Next
+'表名
+   'biaoname = Sheets(3).Range("C4:B4").Value
+
+   j = 5
+   For i = 5 To Sheets.Count
+    Sheets(i).Select
+    Range("C10:F10").Select  '主题填写
+    ActiveCell.FormulaR1C1 = Sheets(3).Cells(6 + i, "L") & ":" & Sheets(3).Cells(6 + i, "C") & " " & "to" & " " & Sheets(3).Cells(6 + i, "D") & " " & "(" & Sheets(3).Cells(6 + i, "K") & " " & Sheets(3).Cells(6 + i, "L") & ")"
+    Range("L9").Select   '匹配类型填写
+    ActiveCell.FormulaR1C1 = Sheets(3).Cells(6 + i, "L")
+    '项目名称
+    Sheets(3).Select
+    Range("C4:D4").Select
+    Selection.Copy
+    Sheets(i).Select
+    Range("C5").Select
+    Selection.PasteSpecial Paste:=xlPasteValues, Operation:=xlNone, SkipBlanks _
+        :=False, Transpose:=False
+    
+    
+    
+    Range("G9").Select '标准值填写
+    ActiveCell.FormulaR1C1 = Sheets(3).Cells(6 + i, "F")
+    Range("H9").Select '下偏差填写
+    ActiveCell.FormulaR1C1 = Sheets(3).Cells(6 + i, "G")
+    Range("I9").Select  '上偏差填写
+    ActiveCell.FormulaR1C1 = Sheets(3).Cells(6 + i, "H")
+
+       If Abs(Range("I9")) = Abs(Range("H9")) Then  '+-填写
+        Range("J9").Select
+        ActiveCell.FormulaR1C1 = Abs(Range("I9"))
+       Else
+        Range("J9").Select
+        ActiveCell.FormulaR1C1 = ""
+       End If
+
+
+
+
+
+'A项目填写-GAP
+       If Sheets(i).Range("L9") = "GAP" Then
+        Sheets(i).Select
+        Range("B14:C14").Select   'A零件名称
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C")
+        Range("D14:F14").Select    'A轮廓度
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C") & "相对于" & Sheets(3).Cells(i + 6, "K") & "方向定位孔的面轮廓度"
+
+        'A轮廓度公差引用
+            Windows("公差计算.xlsm").Activate '激活源文档
+            Sheets(2).Range("G" & j - 2).Select '复制公差
+            Selection.Copy
+            Windows(excel_name).Activate '激复制到的文档
+            Sheets(i).Range("K14").Select
+            ActiveSheet.Paste
+    
+        Range("D15:f15").Select    'A尺寸公差
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C") & "的" & Sheets(3).Cells(i + 6, "K") & "方向定位孔的尺寸公差"
+        Range("K15").Select    '公差值
+        ActiveCell.FormulaR1C1 = 0.1
+
+'B项目填写-GAP
+        Range("B16:C16").Select  'B零件名称
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "D")
+        Range("D16:F16").Select   'B尺寸公差
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "D") & "的" & Sheets(3).Cells(i + 6, "K") & "方向定位销的尺寸公差"
+        Range("K16").Select  '公差值
+        ActiveCell.FormulaR1C1 = 0.1
+        Range("D17:F17").Select   'B轮廓度
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "D") & "相对于" & Sheets(3).Cells(i + 6, "K") & "方向定位销的面轮廓度"
+
+        'B轮廓度公差引用
+            Windows("公差计算.xlsm").Activate '激活源文档
+            Sheets(2).Range("G" & j - 1).Select '复制公差
+            Selection.Copy
+            Windows(excel_name).Activate '激复制到的文档
+            Sheets(i).Range("K17").Select
+            ActiveSheet.Paste
+
+
+        'C轮廓度公差引用
+        Windows("公差计算.xlsm").Activate '激活源文档
+            Sheets(2).Range("G" & j).Select '复制公差
+            Selection.Copy
+            Windows(excel_name).Activate '激复制到的文档
+            Sheets(i).Range("K19").Select
+            ActiveSheet.Paste
+           If Sheets(i).Range("K19") <> "0" Then
+'C项目填写-GAP
+            'C零件名称引用
+            With Workbooks("公差计算.xlsm").Sheets(2).Range("B" & j)
+
+                c_name = .Value
+            End With
+            
+            Range("B18:C18").Select  'C零件名称
+            ActiveCell.FormulaR1C1 = c_name
+            Range("D18:F18").Select   'C与A
+            ActiveCell.FormulaR1C1 = c_name & "的" & Sheets(3).Cells(i + 6, "K") & "方向与" & Sheets(3).Cells(i + 6, "C") & "的定位销的尺寸公差"
+            Range("K18").Select   'C与A公差值
+            ActiveCell.FormulaR1C1 = 0.1
+            Range("D19:F19").Select   '定位度
+            ActiveCell.FormulaR1C1 = c_name & "给" & Sheets(3).Cells(i + 6, "C") & "提供的定位销相对于给" & c_name & " 提供的定位销在" & Sheets(3).Cells(i + 6, "K") & "方向的位置度"
+            
+
+            Range("D20:F20").Select   'C对B
+            ActiveCell.FormulaR1C1 = c_name & "的" & Sheets(3).Cells(i + 6, "K") & "方向与" & Sheets(3).Cells(i + 6, "D") & "相配的定位销的尺寸公差"
+            Range("K20").Select   'C对B公差值
+            ActiveCell.FormulaR1C1 = 0.1
+           End If
+
+       ElseIf Sheets(i).Range("L9") = "FLUSH" Then
+        Sheets(i).Select
+'A项目填写-FLUSH
+        Range("B14:C14").Select   'A零件名称
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C")
+        Range("D14:F14").Select    'A轮廓度
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C") & "相对于" & Sheets(3).Cells(i + 6, "K") & "方向定位面的面轮廓度"
+
+        'A轮廓度公差引用
+            Windows("公差计算.xlsm").Activate '激活源文档
+            Sheets(2).Range("G" & j - 2).Select '复制公差
+            Selection.Copy
+            Windows(excel_name).Activate '激复制到的文档
+            Sheets(i).Range("K14").Select
+            ActiveSheet.Paste
+
+        Range("D15:f15").Select    'A的位置波动
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C") & "在" & Sheets(3).Cells(i + 6, "K") & "方向定位面相对于理想位置的波动"
+        Range("K15").Select    '公差值
+        ActiveCell.FormulaR1C1 = 0.1
+'B项目填写-FLUSH
+        Range("B16:C16").Select  'B零件名称
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "D")
+        Range("D16:F16").Select   'A轮廓度
+        ActiveCell.FormulaR1C1 = Sheets(3).Cells(i + 6, "C") & "相对于" & Sheets(3).Cells(i + 6, "K") & "方向定位面的面轮廓度"
+
+        'B轮廓度公差引用
+            Windows("公差计算.xlsm").Activate '激活源文档
+            Sheets(2).Range("G" & j - 1).Select '复制公差
+            Selection.Copy
+            Windows(excel_name).Activate '激复制到的文档
+            Sheets(i).Range("K16").Select
+            ActiveSheet.Paste
+
+
+        'C轮廓度公差引用
+        Windows("公差计算.xlsm").Activate '激活源文档
+            Sheets(2).Range("G" & j).Select '复制公差
+            Selection.Copy
+            Windows(excel_name).Activate '激复制到的文档
+            Sheets(i).Range("K18").Select
+            ActiveSheet.Paste
+           If Sheets(i).Range("K18") <> "0" Then
+
+'C项目填写-FLUSH
+             'C零件名称引用
+            With Workbooks("公差计算.xlsm").Sheets(2).Range("B" & j)
+
+                c_name = .Value
+            End With
+            Range("B18:C18").Select  'C零件名称
+            ActiveCell.FormulaR1C1 = c_name
+            Range("D18:F18").Select   'C与A
+            ActiveCell.FormulaR1C1 = c_name & "给" & Sheets(3).Cells(i + 6, "C") & "提供的定位面相对于" & Sheets(3).Cells(i + 6, "D") & "提供的定位面在" & Sheets(3).Cells(i + 6, "K") & "方向的面轮廓度"
+           End If
+        
+       End If
+    j = j + 3
+  
+
+'主表格G/R
+    Windows(excel_name).Activate '激复制到的文档
+    If Sheets(i).Cells(37, "G") = "Red" Then
+    Sheets(3).Cells(i + 6, "N") = "R"
+    ElseIf Sheets(i).Cells(37, "G") = "Green" Then
+    Sheets(3).Cells(i + 6, "N") = "G"
+    Else
+    Sheets(3).Cells(i + 6, "N") = ""
+    End If
+ Next
+
+'超链接
+   Windows(excel_name).Activate '激复制到的文档
+
+   For i = 5 To Sheets.Count - 5
+    Sheets(3).Select
+    Sheets(3).Hyperlinks.Add Anchor:=Cells(i + 6, 1), Address:="", SubAddress:=Sheets(i).name & "!O2", TextToDisplay:=Sheets(i).name
+   Next
+
+   MsgBox ("运行完毕！")
+
+
+End Sub
