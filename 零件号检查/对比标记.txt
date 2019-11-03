@@ -1,0 +1,173 @@
+'创建两个数组循环比较，找到对应行后再判断零件号是否相同，不需要好像，可以直接判断
+Sub C1TL()
+'两个表a和b用到的相关变量，后续方便更改
+Dim exaName, exbName, exaPartName, exbPartName, exaRowNumber, exbRowNumber, exaSheet, exbSheet As String
+'定义零件号比较的数组
+'dim aComArray (3 to 23)
+
+'工作簿名称，带后缀
+exaName = "一级零件清单20190606.xlsx"
+exbName = "C1TL.XLSX"
+
+'工作表名称
+exaSheet = "C1TL"
+exbSheet = "EBOM Report Data"
+
+'获取起始行号
+Workbooks(exaName).Activate
+Sheets(exaSheet).Select
+exaRowNumber = ActiveSheet.Cells.SpecialCells(xlCellTypeLastCell).Row
+
+Workbooks(exbName).Activate
+Sheets(exbSheet).Select
+exbRowNumber = ActiveSheet.Cells.SpecialCells(xlCellTypeLastCell).Row
+
+
+
+'零件名数组赋值，采用match对比
+'表格a零件名从第3行开始
+Dim exaArray(), exbArray
+Workbooks(exaName).Activate
+Worksheets(exaSheet).Activate
+ReDim exaArray(3 To exaRowNumber)
+For i = 3 To exaRowNumber
+    exaArray(i) = Cells(i, 2)
+Next
+'表格b零件名从第2行开始
+Workbooks(exbName).Activate
+Worksheets(exbSheet).Activate
+ReDim exbArray(2 To exbRowNumber)
+For i = 2 To exbRowNumber
+    'K为第十一列
+    exbArray(i) = Cells(i, 11)
+
+Next
+
+'Dim exaNum() As String
+
+For i = 3 To UBound(exaArray)
+    For j = 2 To UBound(exbArray)
+        '若零件名相同
+        If exaArray(i) = exbArray(j) Then
+            '都标记黄色，其余标记颜色会覆盖，则剩下的黄色就是零件名匹配零件号不匹配的
+            '零件名存在，但零件号对不上，标记黄色
+            Range("B" & i & ": AB" & i).Select
+                         With Selection.Interior
+                        .Pattern = xlSolid
+                        .PatternColorIndex = xlAutomatic
+                        .Color = 255
+                        .TintAndShade = 0
+                        .PatternTintAndShade = 0
+                        End With
+           'MsgBox ("相同行数为： " & i)
+            'LR存在
+           If Workbooks(exaName).Sheets(exaSheet).Range("H" & i) = Workbooks(exbName).Sheets(exbSheet).Range("O" & j) And Workbooks(exaName).Sheets(exaSheet).Range("H" & i) <> "" Then
+                'MsgBox ("LR相同行数为： " & i)
+                '创建表a零件号数组
+              Workbooks(exaName).Activate
+                Worksheets(exaSheet).Activate
+                tmp = Range("C" & i & ":AB" & i)
+                '取一行成一维，以第三行为例
+                exaNum = Application.Index(tmp, 1, 0)
+                 '获取b表格零件号
+                exbParNum = CDbl(Workbooks(exbName).Sheets(exbSheet).Range("N" & j))
+                'parEx = CDbl(exbParNum)
+               ' MsgBox (TypeName(exbParNum) & " " & TypeName(try))
+                'MsgBox ("原始数据为： " & parEx)
+                 '循环对比
+                For k = 1 To UBound(exaNum)
+                    If exaNum(k) = exbParNum Then
+                        'MsgBox ("匹配的数字为： " & exaNum(k))
+                         'MsgBox (i & "行染红 " & "单元格（" & i & "," & k + 2 & " )" & "染绿")
+                         '零件名称染绿
+                         
+                         Range("B" & i & ": AB" & i).Select
+                         Debug.Print (i)
+                         With Selection.Interior
+                        .Pattern = xlSolid
+                        .PatternColorIndex = xlAutomatic
+                        .Color = 5287936
+                        .TintAndShade = 0
+                     .PatternTintAndShade = 0
+                        End With
+                        '零件号单元格红
+                    
+                         Cells(i, k + 2).Select
+                          With Selection.Interior
+                        .Pattern = xlSolid
+                        .PatternColorIndex = xlAutomatic
+                     .Color = 255
+                        .TintAndShade = 0
+                        .PatternTintAndShade = 0
+                 End With
+                       
+                    End If
+                Next
+                       
+                   
+               
+                
+            'LR不存在
+           ElseIf Workbooks(exaName).Sheets(exaSheet).Range("H" & i) = "" Then
+                 'MsgBox ("LR相同行数为： " & i)
+                Workbooks(exaName).Activate
+                Worksheets(exaSheet).Activate
+                tmp = Range("C" & i & ":AB" & i)
+                '取一行成一维，以第三行为例
+                exaNum = Application.Index(tmp, 1, 0)
+                 '获取b表格零件号
+                exbParNum = CDbl(Workbooks(exbName).Sheets(exbSheet).Range("N" & j))
+                'parEx = CDbl(exbParNum)
+               ' MsgBox (TypeName(exbParNum) & " " & TypeName(try))
+                'MsgBox ("原始数据为： " & parEx)
+                 '循环对比
+               
+                 For k = 1 To UBound(exaNum)
+                    If exaNum(k) = exbParNum And exaNum(k) <> "" Then
+                        'MsgBox ("匹配的数字为： " & exaNum(k))
+                         'MsgBox (i & "行染红 " & "单元格（" & i & "," & k + 2 & " )" & "染绿")
+                         '行染红
+                         Range("B" & i & ": AB" & i).Select
+                         With Selection.Interior
+                        .Pattern = xlSolid
+                        .PatternColorIndex = xlAutomatic
+                        .Color = 5287936
+                        .TintAndShade = 0
+                        .PatternTintAndShade = 0
+                        End With
+                        '单元格绿
+                    
+                         Cells(i, k + 2).Select
+                          With Selection.Interior
+                        .Pattern = xlSolid
+                        .PatternColorIndex = xlAutomatic
+                        .Color = 255
+                        .TintAndShade = 0
+                        .PatternTintAndShade = 0
+                    End With
+                       
+                    End If
+                Next
+               
+               
+               
+               
+               
+
+            End If
+           
+        End If
+   Next
+Next
+
+
+
+
+
+
+
+
+
+
+End Sub
+
